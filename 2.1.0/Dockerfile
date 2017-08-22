@@ -70,29 +70,26 @@ RUN buildDeps=' \
     libicu-dev \
     libmozjs185-dev \
     make \
-  '
- RUN apt-get update -y -q && apt-get install -y --no-install-recommends $buildDeps 
- RUN curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - 
- RUN echo 'deb https://deb.nodesource.com/node_4.x jessie main' > /etc/apt/sources.list.d/nodesource.list 
- RUN echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list 
- #RUN apt-get update -y -qq 
- #RUN apt-get install -y nodejs 
- RUN apt-get install -y nodejs npm
- RUN npm install -g grunt-cli 
+  ' \
+ && apt-get update -y -qq && apt-get install -y --no-install-recommends $buildDeps \
+ && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
+ && echo 'deb https://deb.nodesource.com/node_4.x jessie main' > /etc/apt/sources.list.d/nodesource.list \
+ && echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
+ && apt-get update -y -qq \
+ && apt-get install -y nodejs \
+ && npm install -g grunt-cli \
  # Acquire CouchDB source code
- RUN cd /usr/src && mkdir couchdb 
- RUN curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz 
- RUN curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc 
-# RUN gpg --verify couchdb.tar.gz.asc 
- RUN tar -xzf couchdb.tar.gz -C couchdb --strip-components=1 
- RUN cd couchdb 
+ && cd /usr/src && mkdir couchdb \
+ && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
+ && tar -xzf couchdb.tar.gz -C couchdb --strip-components=1 \
+ && cd couchdb \
  # Build the release and install into /opt
- RUN ./configure --disable-docs 
- RUN make release 
- RUN mv /usr/src/couchdb/rel/couchdb /opt/ 
+ && ./configure --disable-docs \
+ && make release \
+ && mv /usr/src/couchdb/rel/couchdb /opt/ \
  # Cleanup build detritus
- RUN apt-get purge -y --auto-remove $buildDeps 
- RUN rm -rf /var/lib/apt/lists/* /usr/lib/node_modules /usr/src/couchdb*
+ && apt-get purge -y --auto-remove $buildDeps \
+ && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules /usr/src/couchdb*
 
 # Add configuration
 COPY local.ini /opt/couchdb/etc/local.d/
@@ -102,7 +99,7 @@ COPY ./docker-entrypoint.sh /
 
 # Setup directories and permissions
 RUN chmod +x /docker-entrypoint.sh \
- && mkdir /opt/couchdb/data /opt/couchdb/etc/default.d \
+ && mkdir /opt/couchdb/data \
  && chown -R couchdb:couchdb /opt/couchdb/
 
 WORKDIR /opt/couchdb
