@@ -27,7 +27,8 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     libmozjs185-1.0 \
     openssl \
   && rm -rf /var/lib/apt/lists/*
-
+  
+  RUN apt-get update && apt-get install -yq samba gettext
 # grab gosu for easy step-down from root and tini for signal handling
 RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
   && curl -o /usr/local/bin/gosu -fSL "https://github.com/tianon/gosu/releases/download/1.7/gosu-$(dpkg --print-architecture)" \
